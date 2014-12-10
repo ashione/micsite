@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit %}
+{% load url from future %}
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>同济大学MIC实验室</title>
+    <meta name="description" content="">
+    <meta name="author" content="TJU">
+
+    {% block extra_head %}{% endblock %}
+    {% bootstrap_stylesheet_tag %}
+    {% bootstrap_stylesheet_tag "responsive" %}
+    {% bootstrap_javascript_tag %}
+</head>
+<body>
+<ul class="nav nav-pills" role="tablist">
+  <li role="presentation" class="active"><a href="#"><i class="icon-home icon-white"></i>控制台</a></li>
+  <li role="presentation"><a href="#"><i class="icon-book"></i>首页</a></li>
+    <li role="presentation"><a href="/admin/"><i class="icon-pencil"></i>后台管理</a></li>
+  <li role="presentation"><a href="/logout/">注销</a></li>
+</ul>
+
+
+<div class="container-fluid">
+  <div class="row-fluid">
+      <div class="span12">
+              <div class="span4">
+              <div class="pagination">
+              <ul>
+                  {# latest_node_list.paginator.page_range 这个函数返回包含一个所有页码数的 range 对象 #}
+                  {# 即 range(1, latest_node_list.paginator.num_pages + 1) #}
+
+                  {% if 1 == latest_node_list.number %}
+                      <li class="disabled"><a href="#">&larr; 上一页</a></li>
+                  {% else %}
+                      <li class="active"><a href="?page={{ latest_node_list.number }}&turn=-1">&larr; 上一页</a></li>
+                  {% endif %}
+
+                  {% for page_number in latest_node_list.paginator.page_range %}
+
+
+
+                    {% ifequal page_number  latest_node_list.number %}
+                        <li class="disabled"><a href="#">{{ page_number }}</a></li>
+                    {% else %}
+                        <li class="active"><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+                    {% endifequal %}
+                  {% endfor %}
+
+                  {% if latest_node_list.paginator.num_pages == latest_node_list.number %}
+                      <li class="disabled"><a href="#">&rarr; 下一页</a></li>
+                  {% else %}
+                      <li class="active"><a href="?page={{ latest_node_list.number }}&turn=1">&larr; 下一页</a></li>
+                  {% endif %}
+
+
+              </ul>
+              </div>
+
+                {% if latest_node_list %}
+                <ul>
+                {% for node in latest_node_list %}
+                    <h4><li><a href="/index/{{ node.id }}/?page={{ latest_node_list.number }}">{{ node.nodename }}</a></li></h4>
+                    {{ node.nodeip }}
+                {% endfor %}
+                </ul>
+                {% else %}
+                <p>No nodes are available.</p>
+                {% endif %}
+              </div>
+             <div class="span8">
+
+                {% if node_errors %}
+                    <div class="alert alert-error">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <h4>错误!</h4>选择的结点不存在,或者连接异常！
+                    </div>
+                 {% elif node_timeout %}
+                    <div class="alert alert-error">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <h4>错误!</h4>选择的结点不存在,或者连接异常！
+                    </div>
+                {% else %}
+
+                <!--Body content-->
+                     <!--p><h2>{{ single.nodeinfo }}</h2></p-->
+             <h2>{{ single.nodename }}</h2>
+             <hr/>
+          {% if cpudist %}
+              <p  ><h4>CPU使用:</h4></p>
+             <div class="progress progress-striped active">
+
+                <div class="bar" style="width: {{ cpudist.cused }};"><span class="sr-only" >{{ cpudist.cused }} 已经使用  </span></div>
+            </div>
+
+          {% endif %}
+        　<hr/>
+          {% if memorydist %}
+
+              <p><h4>内存总量{{ memorydist.mtotal }}:</h4></p>
+             <div class="progress progress-striped active">
+
+                <div class="bar bar-warning" style="width: {{ memorydist.mused }};"><span class="sr-only" >{{ memorydist.mused }} 已经使用  </span></div>
+            </div>
+           <hr/>
+          {% endif %}
+             {% if disklistdist %}
+                 {% for disk in disklistdist %}
+                     <p><h4>{{ disk.dname }}:</h4></p>
+                     <div class="progress progress-striped active">
+
+                    <div class="bar bar-success" style="width: {{ disk.dused }};"><span class="sr-only" >{{ disk.dused }} 已经使用  </span></div>
+                    </div>
+                 {% endfor %}
+
+             {% endif %}
+            {% endif %}
+            </div>
+            </div>
+        </div>
+  </div>
+</div>
+
+</body>
+</html>
